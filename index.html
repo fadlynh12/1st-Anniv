@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Journey: 🐸 ❤️ 🐳</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        :root {
+            --frog-green: #a8e6cf;
+            --whale-blue: #a1c4fd;
+            --text-dark: #2c3e50;
+            --heart-red: #ffb6c1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fdfbfb;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, var(--frog-green) 0%, var(--whale-blue) 100%);
+            border-bottom: 5px solid var(--heart-red);
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5em;
+            margin: 10px 0;
+            color: #1a252f;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #34495e;
+            font-style: italic;
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .mascots {
+            font-size: 5em;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .timeline {
+            position: relative;
+            border-left: 4px solid var(--heart-red);
+            padding-left: 40px;
+            margin-left: 20px;
+        }
+
+        .event {
+            margin-bottom: 70px;
+            position: relative;
+        }
+
+        .event::before {
+            content: "❤️";
+            position: absolute;
+            left: -58px;
+            top: 0;
+            background: white;
+            border-radius: 50%;
+            font-size: 1.5em;
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .date {
+            display: inline-block;
+            background-color: var(--heart-red);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .desc {
+            margin-bottom: 25px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .highlight {
+            background-color: #ffeaa7;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .photo-slot {
+            background-color: #f1f2f6;
+            border: 2px dashed #ced6e0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #747d8c;
+            font-size: 0.9em;
+            padding: 20px;
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-slot:hover {
+            transform: scale(1.02);
+            border-color: var(--heart-red);
+        }
+
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .comparison-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .comparison-col h4 {
+            text-align: center;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+
+        .map-section {
+            background-color: #fff;
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 2px dashed #ddd;
+        }
+
+        .map-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.5em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .map-subtitle {
+            margin-bottom: 40px;
+            color: #7f8c8d;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 5px solid white;
+            z-index: 1;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+        .leaflet-popup-content {
+            margin: 0;
+            width: 280px !important;
+        }
+        .popup-card {
+            display: flex;
+            flex-direction: column;
+        }
+        .popup-photos {
+            display: flex;
+            height: 120px;
+            background: #eee;
+        }
+        .popup-photos .img-ph {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ccc;
+            font-size: 10px;
+            color: #888;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .popup-photos .img-ph img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .popup-info {
+            padding: 15px;
+            text-align: left;
+        }
+        .popup-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+            color: var(--text-dark);
+            font-family: 'Poppins', sans-serif;
+        }
+        .popup-info p {
+            margin: 0;
+            font-size: 0.85em;
+            color: #555;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* PERBAIKAN ANIMASI PIN PETA (Biar nggak nabrak koordinat peta) */
+        .heart-pin {
+            background: none;
+            border: none;
+        }
+        .heart-anim {
+            font-size: 26px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            animation: bounce-pin 1.5s infinite;
+            display: block;
+            text-align: center;
+        }
+        @keyframes bounce-pin {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--text-dark);
+            color: white;
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-wrapper { grid-template-columns: 1fr; }
+            .timeline { margin-left: 0; padding-left: 25px; }
+            .event::before { left: -43px; font-size: 1.2em; }
+            h1 { font-size: 2.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="mascots">🐸 ❤️ 🐳</div>
+        <h1>1 Tahun Kitaa!</h1>
+        <p class="subtitle">Kelihatannya perjalanan kita gampang, padahal aslinya engga sama sekali. Tapi satu hal yang pasti: semuanya sangat seru karena Si Kodok dan Si Paus lewatin bareng-bareng!</p>
+    </header>
+
+    <!-- Timeline Section -->
+    <div class="container">
+        <div class="timeline">
+            
+            <!-- Event 1: Gunung Ungaran -->
+            <div class="event">
+                <div class="date">28 Juni 2025</div>
+                <div class="title">Pertemuan Pertama di Gunung Ungaran ⛰️</div>
+                <div class="desc">Titik awal kita ketemu. Siapa sangka dari pendakian ini, cerita kita berdua dimulai.</div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><<img src="ungaran11.jpg" alt="Gunung Ungaran"> </span>
+                         
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event 2: First VC -->
+            <div class="event">
+                <div class="date">22 Juli 2025</div>
+                <div class="title">First Video Call! 📱</div>
+                <div class="desc">Momen pertama kali kita VC. Deg-degan, salting, tapi bikin senyum-senyum sendiri! dan yang ngajak babee lohhhh</div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="vc.jpg" alt="First VC"></span>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event 3: Posko KKN & Magelang -->
+            <div class="event">
+                <div class="date">27 Juli 2025</div>
+                <div class="title">Nyamperin "Adik Kecil" ke Posko KKN 🛵</div>
+                <div class="desc">Nekat nyamperin kamu ke posko KKN dan lanjut jalan-jalan ke Magelang. Inget kan dulu aku masih panggil babee dengan sebutan <span class="highlight">"adik kecill"</span>? 🤭</div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="poskokkn1.jpg" alt="Posko KKN/Magelang"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="artos1.jpg" alt="Posko KKN/Magelang"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="magelang1.jpg" alt="Posko KKN/Magelang"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event 4: Tungkubumi -->
+            <div class="event">
+                <div class="date">2 Agustus 2025</div>
+                <div class="title">Our First Date di Tungkubumi 🍽️</div>
+                <div class="desc">Menurutku, ini adalah first date beneran kita. Momen manis yang bikin kodok makin yakin sama paus.</div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="tungkubumi1.jpg" alt="Tungkubumi"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="tungkubumi2.jpg" alt="Tungkubumi"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event 5: Saloka -->
+            <div class="event">
+                <div class="date">18 Agustus 2025</div>
+                <div class="title">Officially Yours di Saloka 🎡</div>
+                <div class="desc">Akhirnya jadian! Perjalanan ke Saloka yang jadi saksi bisu. Coba liat deh perbandingan muka kita sebelum dan sesudah resmi jadian 😆. </div>
+                
+                <div class="comparison-wrapper">
+                    <!-- Before -->
+                    <div class="comparison-col">
+                        <h4>Before Jadian</h4>
+                        <div class="photo-grid">
+                            <div class="photo-slot">
+                                <span><img src="saloka1.jpg" alt="Before Jadian"></span>
+                            </div>
+                            <div class="photo-slot">
+                                <span><img src="saloka2.jpg" alt="Before Jadian"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- After -->
+                    <div class="comparison-col">
+                        <h4>After Jadian (Full Senyum!)</h4>
+                        <div class="photo-grid">
+                            <div class="photo-slot">
+                                <span><img src="saloka3.jpg" alt="After Jadian"></span>
+                            </div>
+                            <div class="photo-slot">
+                                <span><img src="tungkubumi1.jpg" alt="After Jadian"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="date">24 Agustus 2025</div>
+                <div class="title">Our First Photobox 📷</div>
+                <div class="desc">First photobox banget nih 😚. Ini seminggu setelah kita jadian btw, terus abis itu kita ke rumah babee. </div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="brixbok1.jpg" alt="First Photobox"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="brixbok3.jpg" alt="First Photobox"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="event">
+                <div class="date">14 September 2025</div>
+                <div class="title">Ungaran againn</div>
+                <div class="desc">Kita muncak lagi ke ungaran buat kedua kalinya, tapi sekarang sebagai pasangann </div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="ungaran1.jpg" alt="Ungaran Againn"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="ungaran2.jpg" alt="Ungaran Againn"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event">
+                <div class="date">28 September 2025</div>
+                <div class="title">Last day ketemu sebelum kita LDR karena babee magang ke solooo 😢</div>
+                <div class="desc">1 Bulan jadian, kita harus LDR karena Babeee magang di soloo, so sad 😭 </div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="beforeldr.jpg" alt="So Sad kita LDR"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="event">
+                <div class="date">31 Mei 2026</div>
+                <div class="title">Muncak ke Kembangg</div>
+                <div class="desc">Gunung kedua yang kita dakiiii </div>
+                <div class="photo-grid">
+                    <div class="photo-slot">
+                        <span><img src="kembang1.jpg" alt="Kembanggg"></span>
+                    </div>
+                    <div class="photo-slot">
+                        <span><img src="kembang2.jpg" alt="Puncak kedua kitaa"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="map-section">
+        <h2 class="map-title">Jejak Si Kodok & Paus 🗺️</h2>
+        <p class="map-subtitle">Klik pin di peta untuk melihat memori kita !</p>
+        <div id="map"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Happy 1st Anniversary, Babee! <br>
+        🐸 ❤️ 🐳
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Map Logic -->
+    <script>
+        // Set titik tengah kamera peta antara Ungaran dan Magelang
+        var map = L.map('map').setView([-7.320, 110.350], 10);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var locations = [
+            {
+                name: "Gunung Ungaran",
+                coords: [-7.182930, 110.348119], 
+                date: "28 Juni 2025",
+                desc: "Tempat pertama kali kita ketemu. Awal cerita semuanya.",
+                img1: '<img src="ungaran1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="ungaran2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Posko KKN",
+                coords: [-7.274274, 110.373121],
+                date: "27 Juli 2025",
+                desc: "Nyamperin 'adik kecill'",
+                img1: '<img src="poskokkn1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="poskokkn2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Artos Mall",
+                coords: [-7.503911036507168, 110.22485476629045],
+                date: "27 Juli 2025",
+                desc: "Makan Bareng 'adik kecill'",
+                img1: '<img src="artos1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+            },
+            {
+                name: "Museum Borobudur",
+                coords: [-7.601082912234775, 110.19787838031512],
+                date: "27 Juli 2025",
+                desc: "Jalan-jalan bareng 'adik kecill'",
+                img1: '<img src="magelang1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="magelang2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Tungkubumi, Bandungan",
+                coords: [-7.211599, 110.385719],
+                date: "2 Agustus 2025",
+                desc: "Our first date yang beneran date! ❤️",
+                img1: '<img src="tungkubumi1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="tungkubumi2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Saloka Theme Park",
+                coords: [-7.280050, 110.458524],
+                date: "18 Agustus 2025",
+                desc: "Officially yours! Maskot Kodok & Paus resmi bersatu.",
+                img1: '<img src="saloka1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="saloka2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Brikbox",
+                coords: [-7.3187906056471785, 110.49735852078683],
+                date: "24 Agustus 2025 & 14 Februari",
+                desc: "Tempat pertama kali kita photobox lohh terus juga pas valentine ❤️🌹",
+                img1: '<img src="brikbox1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="brikbox2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Semarang Art Gallery",
+                coords: [-6.967276351268415, 110.42810343427291],
+                date: "12 Juli 2026",
+                desc: "Walaupun keliatan nya kecil tapi bagus banget dan cocok banget buat datee",
+                img1: '<img src="smgart1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="smgart2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Paragon Mall Semarang",
+                coords: [-6.978928352862869, 110.41597458030391],
+                date: "30 Agustus 2025",
+                desc: "Photobox kita after kondangann",
+                img1: '<img src="paragonsmg1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="paragonsmg2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "DP Mall",
+                coords: [-6.982685045948448, 110.41202761707827],
+                date: "Sering bangettttt",
+                desc: "Keknya hampir tiap bulan kita kesinii, mamm, main capit, beli blidbox, atau cuma sekedar jalan jalan ajaa",
+                img1: '<img src="dpmall1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="dpmall2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Uptown Mall",
+                coords: [-7.044463627426313, 110.32511200728959],
+                date: "Sering bangettttt sampe harusnya kita punya annual pass",
+                desc: "Pas awal pacaran hampir tiap hari kita kesinii dan tempat photobox yang hasil nya sangat okee",
+                img1: '<img src="uptown1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="uptown2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "23 Mall",
+                coords: [-6.953588632184926, 110.38058751577525],
+                date: "19 Juli 2026",
+                desc: "First time kesini dan ternyata gede bangettt, minus nya panas banget luar nyaa",
+                img1: '<img src="23m1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="23m2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Kampung Kauman, Semarang",
+                coords: [-6.971870806162653, 110.42383724703447],
+                date: "08 Agustus 2026",
+                desc: "Ekspektasi nya banyak tempat makan ternyata dikit banget dan ga worth it sama sekali",
+                img1: '<img src="kauman1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="kauman2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Curug Lawe",
+                coords: [-7.157256723858766, 110.35676890914289],
+                date: "04 Juli 2026",
+                desc: "Curug kedua kitaa, tempat nya wow bangett, tracking nya gampang bangett lagii",
+                img1: '<img src="lawe1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="lawe2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Gunung Kembang",
+                coords: [-7.313918273460605, 109.97792183840087],
+                date: "31 Mei 2026",
+                desc: "Gunung kedua yang kita daki barengg, capee bangettt, tapi seruuu dan pemandangan nya bagus pakee bangett, mana babee cantikk bangettt",
+                img1: '<img src="kembang1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="kembang2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Curug Semirang",
+                coords: [-7.165806844521445, 110.38096160731055],
+                date: "14 Mei 2026",
+                desc: "Curug pertama kitaa, tempat nya wow bangett, tracking nya cape bangett mana udah gelap lagii",
+                img1: '<img src="semirang1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="semirang2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Taman Indonesia Kaya",
+                coords: [-6.992230410280078, 110.42000046496048],
+                date: "03 Mei 2026",
+                desc: "First time kita CFD an barengg, walaupun ga banyak olahraga nyaa",
+                img1: '<img src="tik1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="tik2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "KOV KOFFIE Heritage",
+                coords: [-6.968544051024194, 110.42601890913961],
+                date: "02 Mei 2026",
+                desc: "Niatnya sih nemenin babee skripsian, tapi malahh ngobrol banyakkk",
+                img1: '<img src="kov1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="kov2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Merbabu Kitchen",
+                coords: [-7.392267701096863, 110.42435309380349],
+                date: "05 April 2026",
+                desc: "Makanan nya bintang 1 tapi pemandangan nya juara bagus bangett, apalagi babeee cantikk sekali",
+                img1: '<img src="merbabu1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="merbabu2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Campagna",
+                coords: [-7.773724396839543, 110.40098475148243],
+                date: "30 Maret 2026",
+                desc: "Makanan nya enak, tempat nya baguss, ini kedua kalinya kita ke jogjaa",
+                img1: '<img src="campagna1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="campagna2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Burgerhuis",
+                coords: [-7.001040367379841, 110.40852749564783],
+                date: "14 Maret 2026",
+                desc: "Bukber keduaa kitaaa, mam burger yang enak sekaliii",
+                img1: '<img src="burger1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="burger2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Casa del Cafe",
+                coords: [-6.989333207302111, 110.43583786496042],
+                date: "21 Februari 2026",
+                desc: "Bukber pertamaaa kitaaa, mamnyaa enak dan sangat worth it sekalii, tempat nya juga baguss",
+                img1: '<img src="cdf1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="cdf2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Naruna",
+                coords: [-7.312240381337341, 110.49755603064915],
+                date: "14 Februari 2026",
+                desc: "Valentine pertamaa kitaaa, kita juga mam grill disinii dan bikin foto dan videooo, cuma ada kucing yang nyebelin bangett",
+                img1: '<img src="naruna1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="naruna2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Klu Kafe",
+                coords: [-7.0462084324605545, 110.42865312263329],
+                date: "31 Januari 2026",
+                desc: "Tempat yang sangat adem di semarang, kopi nya enakk bangett, dan kita ngobrol banyakk dan seruu bangettt",
+                img1: '<img src="klu1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="klu2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Kopi Wongso",
+                coords: [-7.874130266299105, 110.36807143614074],
+                date: "13 Desember 2025",
+                desc: "Kita making pizza datee, seru bangett dan tempat nyaa baguss terus makanan sama minuman nya enakk",
+                img1: '<img src="wongso1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="wongso2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Tenda Biru",
+                coords: [-7.874130266299105, 110.36807143614074],
+                date: "12 Oktober & 14 Desember 2025",
+                desc: "Pertama kali aku mam selat solo dan enakk bangett, kedua kalo nya ke solo tetep mamm lagi disinii",
+                img1: '<img src="tenbir1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="tenbir2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "The Park",
+                coords: [-7.874130266299105, 110.36807143614074],
+                date: "31 Agustus & 06 Desember 2025",
+                desc: "Pertama kali kita kesini buat nonton demon slayerr ini seru bangett, teruss yang kedua kita nonton agak laenn ini ngakakk bangettt selepas ituu",
+                img1: '<img src="park1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="park2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Candi Cetho",
+                coords: [-7.595066389605282, 111.15747823110767],
+                date: "16 November 2025",
+                desc: "Candi kedua yang kita datenginn, tempat nya adem bangett dan bagus bangett",
+                img1: '<img src="cetho1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="cetho2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Rumah Atsiri Indonesia",
+                coords: [-7.654660127795589, 111.10189322264439],
+                date: "15 November 2025",
+                desc: "Taman bunga yang indah bangett, apalagi sama babee",
+                img1: '<img src="atsiri1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="atsiri2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Kampung Batik Kauman",
+                coords: [-7.571373620169598, 110.82583180508284],
+                date: "12 Oktober 2025",
+                desc: "Tempat nya cocok banget buat foto sama jalann",
+                img1: '<img src="batik1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="batik2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Keraton Kasunanan Surakarta",
+                coords: [-7.577605259925292, 110.82791372699621],
+                date: "11 Oktober 2025",
+                desc: "Sebenernya lawak banget gara gara foto sama mbah mbah tapii seruuu liat prajurit sama tari nyaa",
+                img1: '<img src="keraton1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="keraton2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Tumurun Museum",
+                coords: [-7.57020825065965, 110.81637017846326],
+                date: "11 Oktober 2025",
+                desc: "Kek nya ini museum date pertama kita ga sih?? tempat nya bagus pake bangett, sayangnya kita ga ada foto berdua selain selfie",
+                img1: '<img src="tumurun1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="tumurun2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Solo Paragon",
+                coords: [-7.562273530689994, 110.81009802449393],
+                date: "11 Oktober 2025",
+                desc: "Kita mam disinii, terus kita ke pasar-pasaran, ini adalah first time aku kasih bungan ke babee ga sihh??",
+                img1: '<img src="sopa1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="sopa2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Java Mall",
+                coords: [-7.006125664694268, 110.4324905937967],
+                date: "27 September 2025",
+                desc: "Tempat kita phottobox terakhir sebelum kita ldr, tapi hasil nya zonk bgtttt",
+                img1: '<img src="java1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="java2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Candi Gedong Songo",
+                coords: [-7.209841129184797, 110.34215215145642],
+                date: "21 September 2025",
+                desc: "Candi date pertama kitaa, seru bangett, walaupun tracking nyaa panjangg, tapi pas udah diatas kek baru wahh bangettt",
+                img1: '<img src="songo1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="songo2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "The Ambaru",
+                coords: [-7.046072645575933, 110.44765072448456],
+                date: "18 Agustus & 05 September 2025",
+                desc: "Pertama kali kesini itu pas kita baru banget jadian siangnyaa, terus kita kesana lagii tapi berlimaaa",
+                img1: '<img src="ambaru1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="ambaru2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Doki Play",
+                coords: [-6.986334507867695, 110.42134829564763],
+                date: "30 Agustus & 06 September 2025",
+                desc: "Main nintendo yang seru bangett tapi karena game nya itu itu ajaa kita bosan dehhh",
+                img1: '<img src="doki1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="doki2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Bakmi Serangkai",
+                coords: [-6.9960859097585715, 110.41399872263234],
+                date: "29 Agustus 2025",
+                desc: "Niat nya mau mam ke pleburan tapi ternyata nge pas sama demoo, makanan nya enak sihh walaupun harus kena gas air mata duluu",
+                img1: '<img src="serangkai1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="serangkai2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+            {
+                name: "Pameran Arsip Gedung Monod Diephlus & Co",
+                coords: [-6.969304649590135, 110.42653272263188],
+                date: "29 Agustus 2025",
+                desc: "Jujurly tempat yang paling aneh tapi tuh kek unik gituu tapi hawa nya ga enakk",
+                img1: '<img src="monod1.jpg" style="width:100%; height:100%; object-fit:cover;">',
+                img2: '<img src="monod2.jpg" style="width:100%; height:100%; object-fit:cover;">'
+            },
+        ];
+
+        // Perbaikan pembentukan ikon pin (Animasi ditaruh di dalam biar gak menimpa posisi Leaflet)
+        var heartIcon = L.divIcon({
+            html: '<div class="heart-anim">❤️</div>',
+            className: 'heart-pin',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -10]
+        });
+
+        // Looping pembuatan marker
+        locations.forEach(function(loc) {
+            var imageSlots = `<div class="img-ph">${loc.img1}</div>`;
+            if (loc.img2 !== "") {
+                imageSlots += `<div class="img-ph">${loc.img2}</div>`;
+            }
+
+            var popupContent = `
+                <div class="popup-card">
+                    <div class="popup-photos">
+                        ${imageSlots}
+                    </div>
+                    <div class="popup-info">
+                        <h3>${loc.name}</h3>
+                        <p><strong>${loc.date}</strong><br>${loc.desc}</p>
+                    </div>
+                </div>
+            `;
+
+            // Tambahkan marker ke peta
+            L.marker(loc.coords, {icon: heartIcon}).addTo(map)
+                .bindPopup(popupContent);
+        });
+    </script>
+</body>
+</html>
